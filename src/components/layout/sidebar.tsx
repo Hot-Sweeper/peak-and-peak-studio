@@ -1,6 +1,7 @@
 import React from 'react';
+import Link from 'next/link';
 import { Home, Search, Library, Plus } from 'lucide-react';
-import { Logo } from '@/components/logo';
+import { LogoWide } from '@/components/logo';
 import { useLibraryStore } from '@/stores/library-store';
 
 export function Sidebar() {
@@ -14,7 +15,9 @@ export function Sidebar() {
   return (
     <aside className="w-64 bg-black flex-col hidden md:flex border-r border-white/5 h-full">
       <div className="p-6">
-        <Logo className="h-8" />
+        <Link href="/" aria-label="Go to Peak Studio home">
+          <LogoWide />
+        </Link>
       </div>
 
       <nav className="flex flex-col gap-2 px-4 mb-8">
