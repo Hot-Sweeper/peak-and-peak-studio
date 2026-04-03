@@ -7,13 +7,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Peak Studio — Slowed & Reverb Audio Effects",
+  title: "Peak Studio",
   description:
     "Create slowed + reverb, bass boost, pitch shift, and more — directly in your browser. No downloads, no installs.",
   applicationName: "Peak Studio",
   keywords: ["slowed reverb", "audio effects", "music studio", "browser audio", "bass boost", "pitch shift"],
   openGraph: {
-    title: "Peak Studio — Slowed & Reverb Audio Effects",
+    title: "Peak Studio",
     description: "Create slowed + reverb, bass boost, pitch shift, and more — directly in your browser.",
     type: "website",
   },

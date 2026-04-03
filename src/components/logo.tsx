@@ -13,7 +13,7 @@ export function Logo({ className = "" }: { className?: string }) {
       <rect width="32" height="32" rx="8" fill="#000000" />
       {/* EQ bars — red · white · red */}
       <rect x="5"  y="14" width="5" height="14" rx="2.5" fill="#FF2D55" />
-      <rect x="14" y="6"  width="5" height="22" rx="2.5" fill="#ffffff" />
+      <rect x="14" y="6"  width="5" height="22" rx="2.5" fill="#FF2D55" />
       <rect x="23" y="10" width="5" height="18" rx="2.5" fill="#FF2D55" />
     </svg>
   );

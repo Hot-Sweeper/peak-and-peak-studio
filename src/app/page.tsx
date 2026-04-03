@@ -71,7 +71,7 @@ export default function LandingPage() {
               <div key={f.label} className="rounded-2xl border border-white/8 bg-white/3 p-6 flex gap-5 items-start hover:border-accent/30 hover:bg-white/5 transition-all">
                 <div aria-hidden="true" className="flex items-end gap-[3px] h-8 shrink-0 pt-1">
                   {f.bars.map((h, i) => (
-                    <div key={i} className="w-[5px] rounded-sm" style={{ height: h, background: i === 1 ? "#ffffff" : "#FF2D55" }} />
+                    <div key={i} className="w-[5px] rounded-sm" style={{ height: h, background: "#FF2D55" }} />
                   ))}
                 </div>
                 <div>
