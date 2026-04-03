@@ -15,6 +15,7 @@ node_modules/
 .next/
 out/
 dist/
+tsconfig.tsbuildinfo
 
 # Downloads cache
 .titan/downloads/
