@@ -28,7 +28,7 @@ export default function LandingPage() {
             <svg width="80" height="80" viewBox="0 0 32 32" fill="none" aria-hidden="true" className="drop-shadow-[0_0_30px_rgba(255,45,85,0.5)]">
               <rect width="32" height="32" rx="8" fill="#000000" />
               <rect x="5" y="14" width="5" height="14" rx="2.5" fill="#FF2D55" />
-              <rect x="14" y="6" width="5" height="22" rx="2.5" fill="#ffffff" />
+              <rect x="14" y="6" width="5" height="22" rx="2.5" fill="#FF2D55" />
               <rect x="23" y="10" width="5" height="18" rx="2.5" fill="#FF2D55" />
             </svg>
           </div>
