@@ -1,0 +1,32 @@
+# Gitignore
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Dashboard (local only)
+.titan-dashboard/
+
+# Build
+.next/
+out/
+dist/
+
+# Downloads cache
+.titan/downloads/
+
+# Logs & debug files
+*.log
+src/app/globals.css.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+*.pyc
+__pycache__/
