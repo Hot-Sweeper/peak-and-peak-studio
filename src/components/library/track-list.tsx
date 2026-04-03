@@ -7,14 +7,20 @@ import { TrackMeta } from '@/lib/db/client';
 
 export function TrackList({ tracks }: { tracks: TrackMeta[] }) {
   const { playTrack, getCurrentTrackMeta } = useLibraryStore();
-  const { play, loadTrackFromDb, playbackState } = useAudioStore();
+  const { play, loadTrackFromDb, playbackState, fileInfo } = useAudioStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { uploadFiles } = useLibraryStore();
   const currentTrack = getCurrentTrackMeta();
 
   const handlePlay = async (index: number, trackId: string) => {
     if (currentTrack?.id === trackId && playbackState !== 'playing') {
-      play();
+      // Engine loses its buffer on page reload — reload from DB if needed
+      if (!fileInfo) {
+        const loaded = await loadTrackFromDb(trackId);
+        if (loaded) play();
+      } else {
+        play();
+      }
       return;
     }
     
