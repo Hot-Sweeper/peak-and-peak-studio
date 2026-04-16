@@ -83,7 +83,7 @@ export function UploadZone() {
         <input
           ref={inputRef}
           type="file"
-          accept="audio/*"
+          accept="audio/*,.mp3,.wav,.ogg,.flac,.aac,.m4a,.webm,.mp4,.opus"
           onChange={onChange}
           className="hidden"
           aria-hidden="true"
@@ -125,7 +125,7 @@ export function UploadZone() {
       <input
         ref={inputRef}
         type="file"
-        accept="audio/*"
+        accept="audio/*,.mp3,.wav,.ogg,.flac,.aac,.m4a,.webm,.mp4,.opus"
         onChange={onChange}
         className="hidden"
         aria-hidden="true"
