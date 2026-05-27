@@ -9,25 +9,37 @@ export function UploadZone() {
   const fileInfo = useAudioStore((s) => s.fileInfo);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const ACCEPTED_TYPES = [
     "audio/mpeg",
+    "audio/mp3",
     "audio/wav",
+    "audio/x-wav",
     "audio/ogg",
     "audio/flac",
+    "audio/x-flac",
     "audio/aac",
+    "audio/x-aac",
     "audio/webm",
     "audio/mp4",
+    "audio/x-m4a",
+    "audio/m4a",
   ];
 
   const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
   const handleFile = useCallback(
     async (file: File) => {
-      if (!ACCEPTED_TYPES.includes(file.type) && !file.name.match(/\.(mp3|wav|ogg|flac|aac|webm|m4a)$/i)) {
+      setError(null);
+      const isAudioType = ACCEPTED_TYPES.includes(file.type) || file.type.startsWith("audio/");
+      const isAudioExt = /\.(mp3|wav|ogg|flac|aac|webm|m4a|opus|mp4)$/i.test(file.name);
+      if (!isAudioType && !isAudioExt) {
+        setError("Please select an audio file (MP3, WAV, FLAC, AAC, OGG, M4A).");
         return;
       }
       if (file.size > MAX_FILE_SIZE) {
+        setError("File is too large. Maximum size is 50 MB.");
         return;
       }
       await loadFile(file);
@@ -83,7 +95,6 @@ export function UploadZone() {
         <input
           ref={inputRef}
           type="file"
-          accept="audio/*,.mp3,.wav,.ogg,.flac,.aac,.m4a,.webm,.mp4,.opus"
           onChange={onChange}
           className="hidden"
           aria-hidden="true"
@@ -121,11 +132,13 @@ export function UploadZone() {
         <p className="text-text-secondary text-sm mt-1">
           MP3, WAV, OGG, FLAC, AAC — up to 50MB
         </p>
+        {error && (
+          <p className="text-red-400 text-sm mt-2" role="alert">{error}</p>
+        )}
       </div>
       <input
         ref={inputRef}
         type="file"
-        accept="audio/*,.mp3,.wav,.ogg,.flac,.aac,.m4a,.webm,.mp4,.opus"
         onChange={onChange}
         className="hidden"
         aria-hidden="true"
