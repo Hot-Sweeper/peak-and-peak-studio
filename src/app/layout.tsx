@@ -12,6 +12,11 @@ export const metadata: Metadata = {
     "Create slowed + reverb, bass boost, pitch shift, and more — directly in your browser. No downloads, no installs.",
   applicationName: "Peak Studio",
   keywords: ["slowed reverb", "audio effects", "music studio", "browser audio", "bass boost", "pitch shift"],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Peak Studio",
+  },
   openGraph: {
     title: "Peak Studio",
     description: "Create slowed + reverb, bass boost, pitch shift, and more — directly in your browser.",

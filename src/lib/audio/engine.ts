@@ -1,6 +1,7 @@
 import type { AudioFileInfo, EffectConfig, PlaybackState, EffectNode } from "./types";
 import { DEFAULT_EFFECT_CONFIG } from "./types";
 import { ReverbEffect, BassBoostEffect } from "./effects";
+import { backgroundPlayback } from "./background-playback";
 
 export class AudioEngine {
   private ctx: AudioContext | null = null;
@@ -18,6 +19,7 @@ export class AudioEngine {
   private onTimeUpdate?: (time: number) => void;
   private onEnded?: () => void;
   private animationFrame: number | null = null;
+  private timeTrackingInterval: ReturnType<typeof setInterval> | null = null;
 
   getContext(): AudioContext | null {
     return this.ctx;
@@ -54,8 +56,10 @@ export class AudioEngine {
   private async ensureContext(): Promise<AudioContext> {
     if (!this.ctx) {
       this.ctx = new AudioContext();
+      backgroundPlayback.setAudioContext(this.ctx);
     }
-    if (this.ctx.state === "suspended") {
+    backgroundPlayback.configurePlaybackSession();
+    if (this.ctx.state === "suspended" || (this.ctx.state as string) === "interrupted") {
       await this.ctx.resume();
     }
     return this.ctx;
@@ -111,13 +115,29 @@ export class AudioEngine {
     const tick = () => {
       if (this.state === "playing") {
         this.onTimeUpdate?.(this.getCurrentTime());
-        this.animationFrame = requestAnimationFrame(tick);
       }
     };
-    this.animationFrame = requestAnimationFrame(tick);
+
+    const rafLoop = () => {
+      if (this.state === "playing") {
+        tick();
+        this.animationFrame = requestAnimationFrame(rafLoop);
+      }
+    };
+    this.animationFrame = requestAnimationFrame(rafLoop);
+
+    // rAF pauses when the screen locks — interval keeps time + media session in sync.
+    if (this.timeTrackingInterval !== null) {
+      clearInterval(this.timeTrackingInterval);
+    }
+    this.timeTrackingInterval = setInterval(tick, 500);
   }
 
   private stopTimeTracking() {
+    if (this.timeTrackingInterval !== null) {
+      clearInterval(this.timeTrackingInterval);
+      this.timeTrackingInterval = null;
+    }
     if (this.animationFrame !== null) {
       cancelAnimationFrame(this.animationFrame);
       this.animationFrame = null;
@@ -167,6 +187,9 @@ export class AudioEngine {
 
     this.setState("playing");
     this.startTimeTracking();
+    if (this.ctx) {
+      void backgroundPlayback.onPlaybackStart(this.ctx);
+    }
   }
 
   pause() {
@@ -175,6 +198,7 @@ export class AudioEngine {
     this.stopSource();
     this.setState("paused");
     this.stopTimeTracking();
+    backgroundPlayback.onPlaybackPause();
   }
 
   stop() {
@@ -184,6 +208,7 @@ export class AudioEngine {
     this.setState("idle");
     this.stopTimeTracking();
     this.onTimeUpdate?.(0);
+    backgroundPlayback.onPlaybackStop();
   }
 
   seek(time: number) {

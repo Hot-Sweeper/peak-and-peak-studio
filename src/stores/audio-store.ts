@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import type { AudioFileInfo, EffectConfig, PlaybackState } from "@/lib/audio/types";
 import { DEFAULT_EFFECT_CONFIG } from "@/lib/audio/types";
 import { AudioEngine, audioBufferToWav } from "@/lib/audio/engine";
+import { backgroundPlayback } from "@/lib/audio/background-playback";
 import { getTrackFile } from "@/lib/db/client";
 
 import { useLibraryStore } from "@/stores/library-store";
@@ -51,7 +52,13 @@ export const useAudioStore = create<AudioStore>()(
 
       engine.setCallbacks({
         onStateChange: (playbackState) => set({ playbackState }),
-        onTimeUpdate: (currentTime) => set({ currentTime }),
+        onTimeUpdate: (currentTime) => {
+          set({ currentTime });
+          const { fileInfo, config, playbackState } = get();
+          if (fileInfo && playbackState === "playing") {
+            backgroundPlayback.setPositionState(fileInfo.duration, currentTime, config.speed);
+          }
+        },
         onEnded: async () => {
           const state = useLibraryStore.getState();
           const nextId = state.nextTrack();
@@ -64,6 +71,34 @@ export const useAudioStore = create<AudioStore>()(
           }
         }
       });
+
+      if (typeof window !== "undefined") {
+        backgroundPlayback.init({
+          onPlay: () => get().play(),
+          onPause: () => get().pause(),
+          onNext: async () => {
+            const nextId = useLibraryStore.getState().nextTrack();
+            if (nextId) {
+              await get().loadTrackFromDb(nextId);
+              await get().play();
+            }
+          },
+          onPrev: async () => {
+            const { currentTime } = get();
+            if (currentTime > 3) {
+              get().seek(0);
+              return;
+            }
+            const prevId = useLibraryStore.getState().prevTrack();
+            if (prevId) {
+              await get().loadTrackFromDb(prevId);
+              await get().play();
+            } else {
+              get().seek(0);
+            }
+          },
+        });
+      }
 
   return {
     engine,
@@ -80,6 +115,7 @@ export const useAudioStore = create<AudioStore>()(
       get().applyRandomizedEffects();
       engine.setConfig(get().config);
       set({ fileInfo, currentTime: 0 });
+      backgroundPlayback.setMetadata(file.name.replace(/\.[^/.]+$/, ""));
     },
 
     async loadTrackFromDb(id: string) {
@@ -87,6 +123,10 @@ export const useAudioStore = create<AudioStore>()(
       if (!file) return false;
       await get().loadFile(file);
       get().applyDynamicSpeedIfEnabled();
+
+      const track = useLibraryStore.getState().tracks.find((t) => t.id === id);
+      backgroundPlayback.setMetadata(track?.name ?? file.name.replace(/\.[^/.]+$/, ""));
+
       return true;
     },
 
