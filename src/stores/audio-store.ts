@@ -31,6 +31,7 @@ interface AudioStore {
   // Effects randomization
   toggleRandomize: (key: keyof EffectConfig) => void;
   applyRandomizedEffects: () => void;
+  applyDynamicSpeedIfEnabled: () => void;
 }
 
 const getRandomValueForEffect = (key: keyof EffectConfig) => {
@@ -85,7 +86,18 @@ export const useAudioStore = create<AudioStore>()(
       const file = await getTrackFile(id);
       if (!file) return false;
       await get().loadFile(file);
+      get().applyDynamicSpeedIfEnabled();
       return true;
+    },
+
+    applyDynamicSpeedIfEnabled() {
+      const { isDynamicMode, dynamicSpeedMin, dynamicSpeedMax } = useLibraryStore.getState();
+      if (!isDynamicMode) return;
+
+      const lo = Math.min(dynamicSpeedMin, dynamicSpeedMax);
+      const hi = Math.max(dynamicSpeedMin, dynamicSpeedMax);
+      const speed = lo + Math.random() * (hi - lo);
+      get().setConfig({ speed: Math.round(speed * 100) / 100 });
     },
 
     toggleRandomize(key: keyof EffectConfig) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAudioStore } from '@/stores/audio-store';
 import { useLibraryStore } from '@/stores/library-store';
-import { Play, Pause, SkipBack, SkipForward, Repeat, Repeat1, Shuffle, Volume2, Music } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Repeat, Repeat1, Shuffle, Volume2, Music, Sparkles } from 'lucide-react';
 import clsx from 'clsx';
 
 export function BottomPlayer() {
@@ -13,14 +13,17 @@ export function BottomPlayer() {
     pause,
     seek,
     loadTrackFromDb,
+    applyDynamicSpeedIfEnabled,
   } = useAudioStore();
 
   const {
     getCurrentTrackMeta,
     repeatMode,
     isShuffling,
+    isDynamicMode,
     toggleRepeat,
     toggleShuffle,
+    toggleDynamicMode,
     nextTrack,
     prevTrack,
   } = useLibraryStore();
@@ -83,6 +86,12 @@ export function BottomPlayer() {
 
   const progressPct = duration ? (currentTime / duration) * 100 : 0;
 
+  const handleToggleDynamic = () => {
+    const enabling = !isDynamicMode;
+    toggleDynamicMode();
+    if (enabling) applyDynamicSpeedIfEnabled();
+  };
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 w-full bg-black/95 backdrop-blur-xl border-t border-white/10">
 
@@ -117,10 +126,24 @@ export function BottomPlayer() {
         </div>
 
         {/* Controls row */}
-        <div className="flex items-center justify-between px-2">
+        <div className="flex items-center justify-between px-1">
+          <button
+            onClick={handleToggleDynamic}
+            className={clsx("p-2 cursor-pointer transition-colors", isDynamicMode ? "text-accent" : "text-white/40 hover:text-white")}
+            aria-label="Dynamic play mode"
+            aria-pressed={isDynamicMode}
+          >
+            <Sparkles className="w-5 h-5" />
+          </button>
+
           <button
             onClick={toggleShuffle}
-            className={clsx("p-2 cursor-pointer transition-colors", isShuffling ? "text-accent" : "text-white/40 hover:text-white")}
+            disabled={isDynamicMode}
+            className={clsx(
+              "p-2 cursor-pointer transition-colors",
+              isDynamicMode && "opacity-30 cursor-not-allowed",
+              isShuffling ? "text-accent" : "text-white/40 hover:text-white"
+            )}
             aria-label="Shuffle"
           >
             <Shuffle className="w-5 h-5" />
@@ -188,8 +211,25 @@ export function BottomPlayer() {
 
         {/* Center: Controls + Scrubber */}
         <div className="flex-1 flex flex-col items-center gap-2 max-w-2xl mx-auto">
-          <div className="flex items-center gap-6">
-            <button onClick={toggleShuffle} className={clsx("cursor-pointer transition-colors", isShuffling ? "text-accent" : "text-white/50 hover:text-white")} aria-label="Shuffle">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleToggleDynamic}
+              className={clsx("cursor-pointer transition-colors", isDynamicMode ? "text-accent" : "text-white/50 hover:text-white")}
+              aria-label="Dynamic play mode"
+              aria-pressed={isDynamicMode}
+            >
+              <Sparkles className="w-4 h-4" />
+            </button>
+            <button
+              onClick={toggleShuffle}
+              disabled={isDynamicMode}
+              className={clsx(
+                "cursor-pointer transition-colors",
+                isDynamicMode && "opacity-30 cursor-not-allowed",
+                isShuffling ? "text-accent" : "text-white/50 hover:text-white"
+              )}
+              aria-label="Shuffle"
+            >
               <Shuffle className="w-4 h-4" />
             </button>
             <button onClick={handlePrev} className="text-white/70 hover:text-white transition-colors cursor-pointer" aria-label="Previous">

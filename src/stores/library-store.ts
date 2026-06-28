@@ -15,9 +15,14 @@ export interface LibraryState {
   currentIndex: number; // Index in the queue
   repeatMode: 'off' | 'all' | 'one';
   isShuffling: boolean;
+  isDynamicMode: boolean;
+  dynamicSpeedMin: number;
+  dynamicSpeedMax: number;
   
   // Shuffle proxy array
   shuffledQueue: string[];
+  /** Track IDs not yet played in the current dynamic-mode cycle */
+  dynamicUnplayedPool: string[];
 
   // Actions
   init: () => Promise<void>;
@@ -34,6 +39,8 @@ export interface LibraryState {
   prevTrack: () => string | null;
   toggleShuffle: () => void;
   toggleRepeat: () => void;
+  toggleDynamicMode: () => void;
+  setDynamicSpeedRange: (min: number, max: number) => void;
   
   // Getters
   getCurrentTrackMeta: () => TrackMeta | null;
@@ -50,6 +57,22 @@ function shuffleArray<T>(array: T[]): T[] {
   return arr;
 }
 
+export const DEFAULT_DYNAMIC_SPEED_MIN = 0.75;
+export const DEFAULT_DYNAMIC_SPEED_MAX = 1.1;
+
+function getCurrentTrackId(state: LibraryState): string | null {
+  const activeQueue = state.isShuffling ? state.shuffledQueue : state.queue;
+  if (activeQueue.length === 0 || state.currentIndex < 0 || state.currentIndex >= activeQueue.length) {
+    return null;
+  }
+  return activeQueue[state.currentIndex];
+}
+
+function initDynamicPool(queue: string[], currentId: string | null): string[] {
+  const rest = currentId ? queue.filter((id) => id !== currentId) : [...queue];
+  return shuffleArray(rest);
+}
+
 export const useLibraryStore = create<LibraryState>()(
   persist(
     (set, get) => ({
@@ -62,7 +85,11 @@ export const useLibraryStore = create<LibraryState>()(
       currentIndex: -1,
       repeatMode: 'off',
       isShuffling: false,
+      isDynamicMode: false,
+      dynamicSpeedMin: DEFAULT_DYNAMIC_SPEED_MIN,
+      dynamicSpeedMax: DEFAULT_DYNAMIC_SPEED_MAX,
       shuffledQueue: [],
+      dynamicUnplayedPool: [],
 
       init: async () => {
         set({ isLoading: true });
@@ -143,10 +170,21 @@ export const useLibraryStore = create<LibraryState>()(
       },
 
       playTrack: (id: string, queueContext?: string[]) => {
-        const { isShuffling } = get();
-        const q = queueContext || get().tracks.map(t => t.id); // fallback to all library
-        
+        const { isShuffling, isDynamicMode } = get();
+        const q = queueContext || get().tracks.map(t => t.id);
         const qIndex = q.indexOf(id);
+
+        if (isDynamicMode) {
+          set({
+            queue: q,
+            shuffledQueue: [],
+            isShuffling: false,
+            currentIndex: Math.max(0, qIndex),
+            history: [],
+            dynamicUnplayedPool: initDynamicPool(q, id),
+          });
+          return;
+        }
         
         if (isShuffling) {
           // Exclude the current track from random shuffle
@@ -169,7 +207,35 @@ export const useLibraryStore = create<LibraryState>()(
       },
 
       nextTrack: () => {
-        const { queue, shuffledQueue, isShuffling, currentIndex, repeatMode } = get();
+        const state = get();
+        const { queue, shuffledQueue, isShuffling, currentIndex, repeatMode, isDynamicMode, dynamicUnplayedPool } = state;
+
+        if (isDynamicMode) {
+          if (queue.length === 0) return null;
+
+          const currentId = getCurrentTrackId(state);
+          let pool = [...dynamicUnplayedPool];
+
+          if (pool.length === 0) {
+            pool = initDynamicPool(queue, currentId);
+            if (pool.length === 0) {
+              return currentId ?? queue[0];
+            }
+          }
+
+          const nextIdx = Math.floor(Math.random() * pool.length);
+          const nextId = pool[nextIdx];
+          pool.splice(nextIdx, 1);
+
+          set({
+            dynamicUnplayedPool: pool,
+            currentIndex: queue.indexOf(nextId),
+            history: currentId ? [...state.history, currentId] : state.history,
+          });
+
+          return nextId;
+        }
+
         const activeQueue = isShuffling ? shuffledQueue : queue;
         
         if (activeQueue.length === 0) return null;
@@ -215,7 +281,9 @@ export const useLibraryStore = create<LibraryState>()(
       },
 
       toggleShuffle: () => {
-        const { isShuffling, queue, currentIndex, shuffledQueue } = get();
+        const { isShuffling, queue, currentIndex, shuffledQueue, isDynamicMode } = get();
+
+        if (isDynamicMode) return;
         
         if (isShuffling) {
           // Turning off shuffle: find current track in original queue
@@ -235,6 +303,31 @@ export const useLibraryStore = create<LibraryState>()(
         const { repeatMode } = get();
         const nextMode = repeatMode === 'off' ? 'all' : repeatMode === 'all' ? 'one' : 'off';
         set({ repeatMode: nextMode });
+      },
+
+      toggleDynamicMode: () => {
+        const state = get();
+        if (state.isDynamicMode) {
+          set({ isDynamicMode: false, dynamicUnplayedPool: [] });
+          return;
+        }
+
+        const q = state.queue.length > 0 ? state.queue : state.tracks.map((t) => t.id);
+        const currentId = getCurrentTrackId(state);
+
+        set({
+          isDynamicMode: true,
+          isShuffling: false,
+          shuffledQueue: [],
+          queue: q,
+          dynamicUnplayedPool: initDynamicPool(q, currentId),
+        });
+      },
+
+      setDynamicSpeedRange: (min: number, max: number) => {
+        const lo = Math.max(0.5, Math.min(min, max));
+        const hi = Math.min(1.5, Math.max(min, max));
+        set({ dynamicSpeedMin: lo, dynamicSpeedMax: hi });
       },
 
       getEffectiveQueue: () => {
@@ -260,7 +353,11 @@ export const useLibraryStore = create<LibraryState>()(
         currentIndex: state.currentIndex, 
         repeatMode: state.repeatMode, 
         isShuffling: state.isShuffling,
-        shuffledQueue: state.shuffledQueue
+        isDynamicMode: state.isDynamicMode,
+        dynamicSpeedMin: state.dynamicSpeedMin,
+        dynamicSpeedMax: state.dynamicSpeedMax,
+        shuffledQueue: state.shuffledQueue,
+        dynamicUnplayedPool: state.dynamicUnplayedPool,
       })
     }
   )

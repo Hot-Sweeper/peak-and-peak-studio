@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { BottomPlayer } from "@/components/layout/bottom-player";
 import { TrackList } from "@/components/library/track-list";
 import { EffectControls } from "@/components/effect-controls";
+import { DynamicModeControls } from "@/components/dynamic-mode-controls";
 import { useAudioStore } from "@/stores/audio-store";
 import clsx from "clsx";
 import { Download } from "lucide-react";
@@ -71,6 +72,7 @@ export default function Home() {
         )}>
           <div className="sticky top-0">
             <h2 className="text-2xl font-bold tracking-tight mb-8">Studio Effects</h2>
+            <DynamicModeControls />
             <EffectControls />
             
             <button
