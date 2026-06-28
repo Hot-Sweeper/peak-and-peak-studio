@@ -1,14 +1,14 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { useLibraryStore } from '@/stores/library-store';
 import { useAudioStore } from '@/stores/audio-store';
 import { Play, Clock, Hash, MoreHorizontal } from 'lucide-react';
 import clsx from 'clsx';
 import { TrackMeta } from '@/lib/db/client';
+import { AUDIO_FILE_ACCEPT } from '@/lib/audio/file-types';
 
 export function TrackList({ tracks }: { tracks: TrackMeta[] }) {
   const { playTrack, getCurrentTrackMeta } = useLibraryStore();
   const { play, loadTrackFromDb, playbackState, fileInfo } = useAudioStore();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { uploadFiles } = useLibraryStore();
   const currentTrack = getCurrentTrackMeta();
 
@@ -34,6 +34,7 @@ export function TrackList({ tracks }: { tracks: TrackMeta[] }) {
     if (!e.target.files?.length) return;
     const files = Array.from(e.target.files);
     await uploadFiles(files);
+    e.target.value = "";
   };
 
   const formatSize = (bytes: number) => {
@@ -47,20 +48,23 @@ export function TrackList({ tracks }: { tracks: TrackMeta[] }) {
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-1 md:mb-2">Local Files</h1>
           <p className="text-white/50 text-xs md:text-sm">{tracks.length} tracks</p>
         </div>
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="bg-accent hover:bg-accent-hover text-white font-bold py-2 md:py-3 px-6 md:px-8 rounded-full transition-transform active:scale-95 shadow-glow text-sm md:text-base flex-shrink-0 cursor-pointer"
+        <label
+          className="relative bg-accent hover:bg-accent-hover text-white font-bold py-2 md:py-3 px-6 md:px-8 rounded-full transition-transform active:scale-95 shadow-glow text-sm md:text-base flex-shrink-0 cursor-pointer select-none"
         >
           Add Files
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="audio/*"
-          multiple
-          className="hidden"
-          onChange={handleFileSelect}
-        />
+          {/*
+            iOS WebKit grays out audio when accept="audio/*" and when the input uses display:none.
+            Use explicit MIME types and a transparent overlay input instead.
+          */}
+          <input
+            type="file"
+            accept={AUDIO_FILE_ACCEPT}
+            multiple
+            onChange={handleFileSelect}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            tabIndex={-1}
+          />
+        </label>
       </div>
 
       {tracks.length === 0 ? (

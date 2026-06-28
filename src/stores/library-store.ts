@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { nanoid } from 'nanoid';
 import { TrackMeta, Playlist, addTrack, deleteTrack, getAllTrackMeta, addPlaylist, deletePlaylist, getAllPlaylists } from '@/lib/db/client';
+import { isAudioFile } from '@/lib/audio/file-types';
 
 export interface LibraryState {
   tracks: TrackMeta[];
@@ -75,7 +76,7 @@ export const useLibraryStore = create<LibraryState>()(
       uploadFiles: async (files: File[]) => {
         set({ isLoading: true });
         for (const file of files) {
-          if (!file.type.startsWith('audio/')) continue;
+          if (!isAudioFile(file)) continue;
           
           const meta = {
             id: nanoid(),

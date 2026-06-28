@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import { useAudioStore } from "@/stores/audio-store";
+import { AUDIO_FILE_ACCEPT, isAudioFile } from "@/lib/audio/file-types";
 
 export function UploadZone() {
   const loadFile = useAudioStore((s) => s.loadFile);
@@ -17,9 +18,7 @@ export function UploadZone() {
   const handleFile = useCallback(
     async (file: File) => {
       setError(null);
-      const isAudioType = file.type.startsWith("audio/");
-      const isAudioExt = /\.(mp3|wav|ogg|flac|aac|webm|m4a|opus|mp4)$/i.test(file.name);
-      if (!isAudioType && !isAudioExt) {
+      if (!isAudioFile(file)) {
         setError("Please select an audio file (MP3, WAV, FLAC, AAC, OGG, M4A).");
         return;
       }
@@ -81,6 +80,7 @@ export function UploadZone() {
           <input
             ref={replaceInputRef}
             type="file"
+            accept={AUDIO_FILE_ACCEPT}
             onChange={onChange}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             tabIndex={-1}
@@ -122,6 +122,7 @@ export function UploadZone() {
       <input
         ref={inputRef}
         type="file"
+        accept={AUDIO_FILE_ACCEPT}
         onChange={onChange}
         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         tabIndex={-1}
