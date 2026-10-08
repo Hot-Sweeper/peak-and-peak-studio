@@ -7,9 +7,9 @@
 
 **Stable** · A browser-based audio effects studio. Load a track, shape its sound, and export a WAV file. Audio processing happens on your device; your tracks are not uploaded to a server.
 
-[![Status: Stable](https://img.shields.io/badge/status-stable-ffe45c?labelColor=08090b)](#use-the-studio)
-[![TypeScript](https://img.shields.io/badge/TypeScript-ffe45c?labelColor=08090b)](package.json)
-[![Web Audio](https://img.shields.io/badge/Web_Audio-ffe45c?labelColor=08090b)](src/lib/audio/engine.ts)
+[![Status: Stable](https://img.shields.io/badge/status-stable-ff2d55?labelColor=08090b)](#use-the-studio)
+[![TypeScript](https://img.shields.io/badge/TypeScript-ff2d55?labelColor=08090b)](package.json)
+[![Web Audio](https://img.shields.io/badge/Web_Audio-ff2d55?labelColor=08090b)](src/lib/audio/engine.ts)
 
 ## Highlights
 
