@@ -82,4 +82,4 @@ Report bugs or suggest improvements through [GitHub Issues](https://github.com/H
 
 ---
 
-<p align="center"><sub>Built by <a href="https://github.com/Hot-Sweeper">Mr. Lemon</a> · <a href="https://github.com/Hot-Sweeper/still-browser">Still Browser — experimental alpha</a></sub></p>
+<p align="center"><sub>Built by <a href="https://github.com/Hot-Sweeper">Mr. Lemon</a> · <a href="https://github.com/Hot-Sweeper/still-browser">Still Browser: experimental alpha</a></sub></p>
