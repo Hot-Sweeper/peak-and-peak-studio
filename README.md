@@ -2,7 +2,7 @@
   <img src=".github/assets/logo-ascii.png" width="144" height="144" alt="Peak's original pink EQ bars converted to ASCII">
 </p>
 
-<h1 align="center"><samp>Peak &amp; Peak Studio</samp></h1>
+<h1 align="center">Peak &amp; Peak Studio</h1>
 
 <p align="center"><strong>Slow it down. Give it space.</strong></p>
 
