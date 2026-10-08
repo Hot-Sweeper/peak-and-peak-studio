@@ -1,15 +1,26 @@
-<picture>
-  <source media="(max-width: 600px)" srcset=".github/assets/banner-mobile.png">
-  <img src=".github/assets/banner.png" alt="Peak & Peak Studio by Mr. Lemon — stable browser audio studio. Slowed and reverb effects. No uploads." width="1600">
-</picture>
+<p align="center">
+  <img src=".github/assets/logo-ascii.png" width="144" height="144" alt="Peak's original pink EQ bars converted to ASCII">
+</p>
 
-# Peak & Peak Studio
+<h1 align="center"><samp>Peak &amp; Peak Studio</samp></h1>
 
-**Stable** · A browser-based audio effects studio. Load a track, shape its sound, and export a WAV file. Audio processing happens on your device; your tracks are not uploaded to a server.
+<p align="center"><strong>Slow it down. Give it space.</strong></p>
 
-[![Status: Stable](https://img.shields.io/badge/status-stable-ff2d55?labelColor=08090b)](#use-the-studio)
-[![TypeScript](https://img.shields.io/badge/TypeScript-ff2d55?labelColor=08090b)](package.json)
-[![Web Audio](https://img.shields.io/badge/Web_Audio-ff2d55?labelColor=08090b)](src/lib/audio/engine.ts)
+<p align="center">
+  <a href="#use-the-studio"><img src="https://img.shields.io/badge/status-STABLE-ff2d55?style=flat-square&amp;labelColor=161b22" alt="Stable"></a>
+  <a href="package.json"><img src="https://img.shields.io/badge/TypeScript-ff2d55?style=flat-square&amp;labelColor=161b22" alt="TypeScript"></a>
+  <a href="src/lib/audio/engine.ts"><img src="https://img.shields.io/badge/Web_Audio-ff2d55?style=flat-square&amp;labelColor=161b22" alt="Web Audio"></a>
+</p>
+
+<p align="center">
+  <a href="#run-locally"><strong>Run the studio →</strong></a> &nbsp; · &nbsp;
+  <a href="#use-the-studio">How it works</a> &nbsp; · &nbsp;
+  <a href="https://github.com/Hot-Sweeper/peak-and-peak-studio/issues">Feedback</a>
+</p>
+
+---
+
+A **stable** browser audio studio for slowed playback, reverb, bass boost, and pitch controls. Load a track, shape its sound, and export a WAV file. Audio processing happens on your device; your tracks are not uploaded to a server.
 
 ## Highlights
 
@@ -71,4 +82,4 @@ Report bugs or suggest improvements through [GitHub Issues](https://github.com/H
 
 ---
 
-Built by [Mr. Lemon / Hot-Sweeper](https://github.com/Hot-Sweeper) · [Still Browser — experimental alpha](https://github.com/Hot-Sweeper/still-browser) · [Branding](https://github.com/Hot-Sweeper/Hot-Sweeper/blob/main/BRANDING.md)
+<p align="center"><sub>Built by <a href="https://github.com/Hot-Sweeper">Mr. Lemon</a> · <a href="https://github.com/Hot-Sweeper/still-browser">Still Browser — experimental alpha</a></sub></p>
