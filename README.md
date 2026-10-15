@@ -20,7 +20,7 @@
 
 ---
 
-A **stable** browser audio studio for slowed playback, reverb, bass boost, and pitch controls. Load a track, shape its sound, and export a WAV file. Audio processing happens on your device; your tracks are not uploaded to a server.
+A **stable** browser audio studio for when a perfectly good song clearly needs to be slower and sound like it's playing in a parking garage. Load a track, adjust reverb, bass, or pitch, and export a WAV. Processing happens on your device; your tracks aren't uploaded to a server.
 
 ## Highlights
 
