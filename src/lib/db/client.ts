@@ -98,3 +98,23 @@ export async function getAllPlaylists(): Promise<Playlist[]> {
   const playlists = await db.getAll('playlists');
   return playlists.sort((a, b) => b.createdAt - a.createdAt);
 }
+
+/** Full record including the audio file, used when sending a library. */
+export async function getTrackData(id: string): Promise<TrackData | null> {
+  const db = await getDB();
+  if (!db) return null;
+  return (await db.get('tracks', id)) ?? null;
+}
+
+/** Stores a playlist only if it does not exist yet, otherwise merges its tracks in. */
+export async function mergePlaylist(playlist: Playlist): Promise<void> {
+  const db = await getDB();
+  if (!db) return;
+  const existing = await db.get('playlists', playlist.id);
+  if (!existing) {
+    await db.put('playlists', playlist);
+    return;
+  }
+  const merged = Array.from(new Set([...existing.trackIds, ...playlist.trackIds]));
+  await db.put('playlists', { ...existing, trackIds: merged });
+}

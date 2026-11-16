@@ -201,3 +201,156 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 .animate-eq { animation: eq 1s ease-in-out infinite; }
 
 
+
+/* ── Motion tokens (see DESIGN.md) ── */
+:root {
+  --ease-out: cubic-bezier(0, 0, 0.58, 1);
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in: cubic-bezier(0.42, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-press: 120ms;
+  --duration-sm: 200ms;
+  --duration-md: 300ms;
+  --duration-lg: 420ms;
+}
+
+/* Press feedback starts on pointer down. */
+.press {
+  transition-property: transform, background-color, color, opacity;
+  transition-duration: var(--duration-press);
+  transition-timing-function: var(--ease-out-strong);
+}
+.press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* ── Transfer sheet: bottom sheet on phones, centered dialog on larger screens ── */
+.transfer-dialog {
+  margin: auto auto 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: min(92dvh, 760px);
+  padding: 0;
+  color: var(--color-text-primary);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-glass);
+  border-bottom: none;
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+.transfer-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  animation: sheet-in var(--duration-lg) var(--ease-drawer);
+}
+.transfer-dialog[open][data-closing] {
+  animation: sheet-out var(--duration-sm) var(--ease-in) forwards;
+}
+.transfer-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: backdrop-in var(--duration-md) var(--ease-out);
+}
+.transfer-dialog[data-closing]::backdrop {
+  animation: backdrop-out var(--duration-sm) var(--ease-in) forwards;
+}
+
+@media (min-width: 768px) {
+  .transfer-dialog {
+    margin: auto;
+    width: 460px;
+    border-bottom: 1px solid var(--color-border-glass);
+    border-radius: 28px;
+    box-shadow: var(--shadow-glass);
+  }
+  .transfer-dialog[open] {
+    animation: dialog-in var(--duration-md) var(--ease-out);
+  }
+  .transfer-dialog[open][data-closing] {
+    animation: dialog-out var(--duration-sm) var(--ease-in) forwards;
+  }
+}
+
+@keyframes sheet-in { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes sheet-out { from { transform: translateY(0); } to { transform: translateY(100%); } }
+@keyframes dialog-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes dialog-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(8px) scale(0.97); }
+}
+@keyframes backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes backdrop-out { from { opacity: 1; } to { opacity: 0; } }
+
+.segment-indicator {
+  transition: transform var(--duration-md) var(--ease-in-out);
+}
+
+.progress-fill {
+  transition: transform var(--duration-sm) linear;
+}
+
+.copied-badge {
+  opacity: 0;
+  transform: translateY(4px) scale(0.9);
+  transition: opacity var(--duration-sm) var(--ease-out), transform var(--duration-sm) var(--ease-overshoot);
+  pointer-events: none;
+}
+.copied-badge.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.icon-swap .icon-a,
+.icon-swap .icon-b {
+  transition: opacity var(--duration-sm) var(--ease-out-strong), transform var(--duration-sm) var(--ease-out-strong), filter var(--duration-sm) var(--ease-out-strong);
+}
+.icon-swap .icon-b { opacity: 0; transform: scale(0.5); filter: blur(2px); }
+.icon-swap[data-swapped] .icon-a { opacity: 0; transform: scale(0.5); filter: blur(2px); }
+.icon-swap[data-swapped] .icon-b { opacity: 1; transform: none; filter: none; }
+
+.done-check {
+  animation: done-pop 320ms var(--ease-overshoot) both;
+}
+@keyframes done-pop {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: none; }
+}
+
+/* A calm heartbeat while waiting on the other device. */
+.waiting-dot {
+  animation: waiting-pulse 1.6s var(--ease-in-out) infinite;
+}
+@keyframes waiting-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.7); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transfer-dialog[open],
+  .transfer-dialog[open][data-closing],
+  .transfer-dialog::backdrop,
+  .transfer-dialog[data-closing]::backdrop,
+  .done-check,
+  .waiting-dot {
+    animation: none;
+  }
+  .press:active:not(:disabled) { transform: none; }
+  .segment-indicator,
+  .copied-badge,
+  .icon-swap .icon-a,
+  .icon-swap .icon-b {
+    transition: opacity 150ms linear;
+  }
+}
+
+.transfer-dialog:focus,
+.transfer-dialog:focus-visible {
+  outline: none;
+}

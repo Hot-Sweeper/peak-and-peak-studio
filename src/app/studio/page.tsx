@@ -8,6 +8,8 @@ import { TrackList } from "@/components/library/track-list";
 import { EffectControls } from "@/components/effect-controls";
 import { DynamicModeControls } from "@/components/dynamic-mode-controls";
 import { useAudioStore } from "@/stores/audio-store";
+import { useTransferStore } from "@/stores/transfer-store";
+import { TransferSheet } from "@/components/transfer/transfer-sheet";
 import clsx from "clsx";
 import { Download } from "lucide-react";
 
@@ -19,6 +21,16 @@ export default function Home() {
   useEffect(() => {
     init();
   }, [init]);
+
+  // Share links (/r/CODE) land here as ?receive=CODE and open the receive sheet.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("receive")) return;
+    useTransferStore.getState().openSheet("receive", params.get("receive"));
+    params.delete("receive");
+    const query = params.toString();
+    window.history.replaceState(null, "", window.location.pathname + (query ? `?${query}` : ""));
+  }, []);
 
   if (isLoading) {
     return (
@@ -102,6 +114,7 @@ export default function Home() {
       </main>
 
       <BottomPlayer />
+      <TransferSheet />
     </div>
   );
 }

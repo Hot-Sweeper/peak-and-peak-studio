@@ -26,6 +26,8 @@ export interface LibraryState {
 
   // Actions
   init: () => Promise<void>;
+  /** Reloads tracks and playlists from IndexedDB without showing the full-page loader. */
+  refresh: () => Promise<void>;
   uploadFiles: (files: File[]) => Promise<void>;
   removeTrack: (id: string) => Promise<void>;
   createPlaylist: (name: string, trackIds?: string[]) => Promise<void>;
@@ -98,6 +100,14 @@ export const useLibraryStore = create<LibraryState>()(
           getAllPlaylists()
         ]);
         set({ tracks, playlists, isLoading: false });
+      },
+
+      refresh: async () => {
+        const [tracks, playlists] = await Promise.all([
+          getAllTrackMeta(),
+          getAllPlaylists()
+        ]);
+        set({ tracks, playlists });
       },
 
       uploadFiles: async (files: File[]) => {

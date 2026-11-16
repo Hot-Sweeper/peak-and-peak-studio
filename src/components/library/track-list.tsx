@@ -5,12 +5,15 @@ import { Play, Clock, Hash, MoreHorizontal } from 'lucide-react';
 import clsx from 'clsx';
 import { TrackMeta } from '@/lib/db/client';
 import { AUDIO_FILE_ACCEPT } from '@/lib/audio/file-types';
+import { TransferButton } from '@/components/transfer/transfer-sheet';
+import { useTransferStore } from '@/stores/transfer-store';
 
 export function TrackList({ tracks }: { tracks: TrackMeta[] }) {
   const { playTrack, getCurrentTrackMeta } = useLibraryStore();
   const { play, loadTrackFromDb, playbackState, fileInfo } = useAudioStore();
   const { uploadFiles } = useLibraryStore();
   const currentTrack = getCurrentTrackMeta();
+  const openTransfer = useTransferStore((s) => s.openSheet);
 
   const handlePlay = async (index: number, trackId: string) => {
     if (currentTrack?.id === trackId && playbackState !== 'playing') {
@@ -42,12 +45,14 @@ export function TrackList({ tracks }: { tracks: TrackMeta[] }) {
   };
 
   return (
-    <div className="flex-1 w-full max-w-5xl mx-auto flex flex-col pt-4 md:pt-8 px-4 lg:px-12 pb-32">
+    <div className="flex-1 w-full max-w-5xl mx-auto flex flex-col pt-4 md:pt-8 px-4 lg:px-12 pb-56 md:pb-32">
       <div className="flex items-end justify-between mb-6 md:mb-8">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-1 md:mb-2">Local Files</h1>
-          <p className="text-white/50 text-xs md:text-sm">{tracks.length} tracks</p>
+          <p className="text-white/50 text-xs md:text-sm">{tracks.length} {tracks.length === 1 ? 'track' : 'tracks'}</p>
         </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+        <TransferButton />
         <label
           className="relative bg-accent hover:bg-accent-hover text-white font-bold py-2 md:py-3 px-6 md:px-8 rounded-full transition-transform active:scale-95 shadow-glow text-sm md:text-base flex-shrink-0 cursor-pointer select-none"
         >
@@ -65,18 +70,27 @@ export function TrackList({ tracks }: { tracks: TrackMeta[] }) {
             tabIndex={-1}
           />
         </label>
+        </div>
       </div>
 
       {tracks.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center mt-20 opacity-50">
-          <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-6">
-            <Play className="w-10 h-10 ml-2" />
+        <div className="flex-1 flex flex-col items-center justify-center text-center mt-4 md:mt-20">
+          <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-white/5 flex items-center justify-center mb-4 md:mb-6 text-white/50">
+            <Play className="w-7 h-7 md:w-10 md:h-10 ml-1 md:ml-2" />
           </div>
-          <h3 className="text-xl font-medium text-white mb-2">No tracks yet</h3>
-          <p className="text-sm max-w-sm">
+          <h3 className="text-xl font-medium text-white/80 mb-2">No tracks yet</h3>
+          <p className="text-sm max-w-sm text-white/50">
             Add some local audio files to get started with your slowed & reverb studio.
-            Files stay in your browser and are never uploaded to a server.
+            Files stay on this device unless you choose to transfer them.
           </p>
+          <p className="mt-6 md:mt-8 text-sm text-white/70">Moving from another phone?</p>
+          <button
+            type="button"
+            onClick={() => openTransfer('receive')}
+            className="press mt-3 min-h-11 px-6 rounded-full bg-white/10 hover:bg-white/15 text-white text-sm font-bold transition-colors cursor-pointer"
+          >
+            Receive your library
+          </button>
         </div>
       ) : (
         <div className="w-full">

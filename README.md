@@ -20,7 +20,7 @@
 
 ---
 
-A **stable** browser audio studio for when a perfectly good song clearly needs to be slower and sound like it's playing in a parking garage. Load a track, adjust reverb, bass, or pitch, and export a WAV. Processing happens on your device; your tracks aren't uploaded to a server.
+A **stable** browser audio studio for when a perfectly good song clearly needs to be slower and sound like it's playing in a parking garage. Load a track, adjust reverb, bass, or pitch, and export a WAV. Processing happens on your device. Your tracks only leave it when you choose to transfer your library to another device.
 
 ## Highlights
 
@@ -28,8 +28,9 @@ A **stable** browser audio studio for when a perfectly good song clearly needs t
 - Bass boost and pitch controls
 - Waveform visualization and playback controls
 - A local track library backed by IndexedDB
+- Library transfer: move every song and playlist to another phone with a short code, link, or QR code
 - WAV export using browser audio processing
-- No account or audio upload required
+- No account required
 
 ## Use the studio
 
@@ -39,6 +40,16 @@ A **stable** browser audio studio for when a perfectly good song clearly needs t
 4. Play your track, then use **Export Master** to save a WAV file.
 
 Your browser's audio support determines which file formats it can open. The library is stored locally in that browser; clearing site data removes the stored library.
+
+## Move your library to another device
+
+1. On the device with your songs, tap **Transfer**, then **Share library**. Peak shows a code like `K7MQ-2P9X`, a QR code, and a link, and starts uploading.
+2. On the other device, open Peak, tap **Transfer → Receive** and enter the code. Scanning the QR code or opening the link works too.
+3. Songs download as soon as they arrive on the server, so the second device can start before the upload finishes. Songs you already have are skipped, and playlists come along.
+
+Keep Peak open on both screens while it runs. If the connection drops, tap **Resume upload** or **Try again** and it continues where it stopped. The code stops working after 7 days or when you tap **Stop sharing**, which deletes the songs from the server.
+
+On iPhone, a Peak icon on the home screen keeps its own storage, separate from Safari. Type the code inside the home screen app instead of opening the link in Safari, so the songs land in the app you actually use.
 
 ## Run locally
 
@@ -60,7 +71,9 @@ npm run build
 npm start
 ```
 
-The repository includes Railway configuration for building and running the app. No API keys or secrets are needed for its client-side audio workflow.
+The repository includes Railway configuration for building and running the app. No API keys or secrets are needed.
+
+Library transfers store songs on the server's disk for up to 7 days. On Railway, attach a volume to the service (any mount path): Peak picks it up through `RAILWAY_VOLUME_MOUNT_PATH`, and shared libraries then survive redeploys. Without a volume, transfers still work, but a redeploy clears any library that is still being shared. See `.env.example` for size limits.
 
 ## Stack
 
@@ -73,7 +86,9 @@ src/app/           Landing page and studio
 src/components/    Audio controls, waveform, library, and layout
 src/lib/audio/     Playback, effects, and background audio
 src/lib/db/        Local library storage
-src/stores/        Audio and library state
+src/lib/share/     Library transfer: codes and server-side storage
+src/app/api/share/ Transfer API (create, upload, download, stop)
+src/stores/        Audio, library, and transfer state
 ```
 
 ## Feedback
